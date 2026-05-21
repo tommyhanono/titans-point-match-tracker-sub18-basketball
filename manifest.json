@@ -1,0 +1,16 @@
+{
+  "name": "Titans Tracker",
+  "short_name": "Titans",
+  "description": "Basketball stats tracker — Copa Talento Sub-18",
+  "display": "standalone",
+  "orientation": "any",
+  "theme_color": "#1a1a2e",
+  "background_color": "#1a1a2e",
+  "start_url": "./index.html",
+  "scope": "./",
+  "lang": "es",
+  "icons": [
+    { "src": "icon-192.svg", "sizes": "192x192", "type": "image/svg+xml", "purpose": "any maskable" },
+    { "src": "icon-512.svg", "sizes": "512x512", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

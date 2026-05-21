@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+  <!-- PWA / iOS -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Titans">
+  <meta name="theme-color" content="#1a1a2e">
+  <link rel="apple-touch-icon" href="icon-192.svg">
+  <link rel="manifest" href="manifest.json">
+
+  <title>Titans Tracker</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- ═══ HEADER ═══════════════════════════════════════════════════════════ -->
+  <header id="header">
+    <div class="hd-brand">
+      <span class="brand-text">TITANS</span>
+      <input id="gameName" type="text" value="Titans vs ___"
+             autocomplete="off" spellcheck="false" aria-label="Nombre del partido">
+    </div>
+
+    <div class="hd-clock">
+      <div id="clockDisplay" class="clock-num">10:00</div>
+      <span id="clockQuarter" class="clock-qtr">Q1</span>
+      <button id="btnToggleClock" class="icon-btn play-btn" aria-label="Iniciar/Pausar">▶</button>
+      <button id="btnResetClock"  class="icon-btn"          aria-label="Resetear cuarto">↺</button>
+    </div>
+
+    <div class="hd-right">
+      <div class="score-box">PTS <span id="scoreVal">0</span></div>
+      <div id="quarterSelector" class="qtr-sel" role="group" aria-label="Cuarto"></div>
+    </div>
+  </header>
+
+  <!-- ═══ CUERPO (split en landscape) ════════════════════════════════════ -->
+  <div class="app-body">
+
+    <!-- Panel izquierdo (landscape) / sección superior (portrait) -->
+    <aside id="panelLeft">
+
+      <!-- Jugador activo -->
+      <div id="activeBadge" class="active-badge">
+        <div id="activeName" class="active-name">Selecciona un jugador</div>
+        <div id="activeStatus" class="active-status"></div>
+      </div>
+
+      <!-- Lista de jugadores (scroll horizontal) -->
+      <div id="playerList" class="player-list" role="list"></div>
+
+      <!-- Log de acciones (solo visible en landscape) -->
+      <div id="actionLog" class="action-log landscape-only"></div>
+
+      <!-- Controles -->
+      <div class="ctrl-bar">
+        <button id="btnUndo"     class="ctrl-btn">↩ Deshacer</button>
+        <button id="btnSave"     class="ctrl-btn">💾 Guardar</button>
+        <button id="btnLoad"     class="ctrl-btn">📂 Cargar</button>
+        <button id="btnReport"   class="ctrl-btn accent-btn">📝 Resumen</button>
+        <button id="btnNewGame"  class="ctrl-btn new-game-btn">🔄 Nuevo</button>
+        <button id="btnAdd"      class="ctrl-btn">＋</button>
+        <button id="btnRemove"   class="ctrl-btn danger-btn">－</button>
+        <button id="btnTable"    class="ctrl-btn">📋</button>
+      </div>
+    </aside>
+
+    <!-- Panel derecho: botones de estadísticas -->
+    <main id="panelRight">
+      <div id="statGrid" class="stat-grid" role="group" aria-label="Estadísticas"></div>
+    </main>
+
+  </div><!-- /app-body -->
+
+  <!-- ═══ TABLA (toggle) ══════════════════════════════════════════════════ -->
+  <section id="tableSection" class="table-section hidden" aria-live="polite">
+    <div class="table-topbar">
+      <span>ESTADÍSTICAS EN VIVO</span>
+      <button id="btnCloseTable" class="close-btn">✕</button>
+    </div>
+    <div class="table-scroll">
+      <table id="statsTable"></table>
+    </div>
+  </section>
+
+</div><!-- /app -->
+
+<!-- Toast notifications -->
+<div id="toast" role="status" aria-live="polite"></div>
+
+<!-- SheetJS — cargado async; SW lo cachea para uso offline -->
+<script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js" defer></script>
+<script src="app.js" defer></script>
+</body>
+</html>
