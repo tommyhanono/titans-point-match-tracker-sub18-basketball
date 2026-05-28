@@ -325,14 +325,18 @@ input  { border: none; outline: none; font-family: var(--font); color: var(--whi
 /* Controls bar */
 .ctrl-bar {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow-x: auto;
   gap: 5px;
   padding: 8px 10px;
   padding-bottom: max(8px, var(--safe-b));
   background: var(--bg2);
   border-top: 1px solid var(--bg3);
   flex-shrink: 0;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
 }
+.ctrl-bar::-webkit-scrollbar { display: none; }
 .ctrl-btn {
   background: var(--bg3);
   color: var(--lt);
@@ -341,7 +345,7 @@ input  { border: none; outline: none; font-family: var(--font); color: var(--whi
   padding: 8px 10px;
   border-radius: 8px;
   min-height: 36px;
-  flex: 1 1 auto;
+  flex: 0 0 auto;
   white-space: nowrap;
   transition: opacity 0.12s;
 }
