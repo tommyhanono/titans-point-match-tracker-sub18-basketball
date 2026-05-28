@@ -4,6 +4,8 @@
 
 🔗 **[Abrir la app → https://tommyhanono.github.io/titans-point-match-tracker-sub18-basketball/](https://tommyhanono.github.io/titans-point-match-tracker-sub18-basketball/)**
 
+📥 **[Importar historial de partidos → https://tommyhanono.github.io/titans-point-match-tracker-sub18-basketball/import-history.html](https://tommyhanono.github.io/titans-point-match-tracker-sub18-basketball/import-history.html)**
+
 ---
 
 ## ¿Qué es?
