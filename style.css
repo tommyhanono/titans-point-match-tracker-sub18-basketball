@@ -325,18 +325,14 @@ input  { border: none; outline: none; font-family: var(--font); color: var(--whi
 /* Controls bar */
 .ctrl-bar {
   display: flex;
-  flex-wrap: nowrap;
-  overflow-x: auto;
+  flex-wrap: wrap;
   gap: 5px;
   padding: 8px 10px;
   padding-bottom: max(8px, var(--safe-b));
   background: var(--bg2);
   border-top: 1px solid var(--bg3);
   flex-shrink: 0;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
 }
-.ctrl-bar::-webkit-scrollbar { display: none; }
 .ctrl-btn {
   background: var(--bg3);
   color: var(--lt);
