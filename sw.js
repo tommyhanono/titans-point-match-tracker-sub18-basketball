@@ -1,12 +1,18 @@
 /* Service Worker — Titans Tracker */
-const CACHE = 'titans-v3';
+const CACHE = 'titans-v4';
 const CORE  = [
   './', './index.html', './style.css', './app.js',
   './manifest.json', './icon-192.svg', './icon-512.svg',
+  './import-history.html',
 ];
 
 self.addEventListener('install', e =>
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(CORE)).then(() => self.skipWaiting()))
+  e.waitUntil(
+    caches.open(CACHE).then(c =>
+      /* Cachear cada archivo individualmente — si uno falla no rompe el resto */
+      Promise.allSettled(CORE.map(url => c.add(url)))
+    ).then(() => self.skipWaiting())
+  )
 );
 
 self.addEventListener('activate', e =>
