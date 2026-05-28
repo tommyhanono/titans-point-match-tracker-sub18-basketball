@@ -1,5 +1,5 @@
 /* Service Worker — Titans Tracker */
-const CACHE = 'titans-v5';
+const CACHE = 'titans-v6';
 const CORE  = [
   './', './index.html', './style.css', './app.js',
   './manifest.json', './icon-192.svg', './icon-512.svg',
@@ -26,16 +26,16 @@ self.addEventListener('activate', e =>
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
 
-  /* Archivos locales: cache-first */
+  /* Archivos locales: network-first (siempre trae versión nueva si hay internet,
+     usa cache solo como fallback offline)                                        */
   if (url.origin === self.location.origin) {
     e.respondWith(
-      caches.match(e.request).then(cached => {
-        if (cached) return cached;
-        return fetch(e.request).then(r => {
+      fetch(e.request)
+        .then(r => {
           if (r && r.ok) caches.open(CACHE).then(c => c.put(e.request, r.clone()));
           return r;
-        });
-      })
+        })
+        .catch(() => caches.match(e.request))
     );
     return;
   }
