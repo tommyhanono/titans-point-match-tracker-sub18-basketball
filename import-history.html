@@ -84,7 +84,35 @@ function importar() {
   cjpMins['Toby Burstein'] = 120;
 
   /* ══════════════════════════════════════════════
-     PARTIDO 2 — Titans vs AIP  |  Titans 60 - AIP 49
+     PARTIDO 2 — Titans vs MET  |  Titans 40 - MET 46
+  ══════════════════════════════════════════════ */
+  const metStats = emptyStats();
+  const metMins  = emptyMins();
+
+  // Aaron Breziner: 3pts (1x2PT, 1/2 FT), 1 falta, 2 TO
+  Object.assign(metStats['Aaron Breziner'],   {'2PT_MADE':1,'2PT_ATT':4,'3PT_MADE':0,'3PT_ATT':1,'FT_MADE':1,'FT_ATT':2,'TOV':2,'FOUL':1});
+  // Joseph Gabay: 9pts (2x2PT, 1x3PT, 2/2 FT), 3 faltas, 2 TO
+  Object.assign(metStats['Joseph Gabay'],     {'2PT_MADE':2,'2PT_ATT':5,'3PT_MADE':1,'3PT_ATT':2,'FT_MADE':2,'FT_ATT':2,'TOV':2,'FOUL':3});
+  // Andre Setton: 15pts (6x2PT, 0x3PT, 3/5 FT), 2 faltas, 5 TO
+  Object.assign(metStats['Andre Setton'],     {'2PT_MADE':6,'2PT_ATT':12,'3PT_MADE':0,'3PT_ATT':2,'FT_MADE':3,'FT_ATT':5,'TOV':5,'FOUL':2});
+  // Saul Piciotto: 0pts, 0/2 FT, 0 faltas
+  Object.assign(metStats['Saul Piciotto'],    {'2PT_MADE':0,'2PT_ATT':2,'3PT_MADE':0,'3PT_ATT':1,'FT_MADE':0,'FT_ATT':2,'TOV':0,'FOUL':0});
+  // Zury Attia: 11pts (2x2PT, 2x3PT, 1/1 FT), 5 faltas FOULED OUT, 3 TO
+  Object.assign(metStats['Zury Attia'],       {'2PT_MADE':2,'2PT_ATT':5,'3PT_MADE':2,'3PT_ATT':4,'FT_MADE':1,'FT_ATT':1,'TOV':3,'FOUL':5});
+  // Daniel Abadi: 2pts (1x2PT), 2 faltas, 2 TO
+  Object.assign(metStats['Daniel Abadi'],     {'2PT_MADE':1,'2PT_ATT':4,'3PT_MADE':0,'3PT_ATT':0,'FT_MADE':0,'FT_ATT':0,'TOV':2,'FOUL':2});
+  // Alberto Yahni: 0pts, 1 TO
+  Object.assign(metStats['Alberto Yahni'],    {'TOV':1,'FOUL':0});
+  // Ariel Gean: 0pts, 3 TO
+  Object.assign(metStats['Ariel Gean'],       {'TOV':3,'FOUL':0});
+  // Ilay Mendelson: 0pts, 1 falta
+  Object.assign(metStats['Ilay Mendelson'],   {'TOV':0,'FOUL':1});
+  // Ariel Ghershfeld: 0pts, 1 falta
+  Object.assign(metStats['Ariel Ghershfeld'], {'TOV':0,'FOUL':1});
+  // Ramon Malca & Toby Burstein: no jugaron
+
+  /* ══════════════════════════════════════════════
+     PARTIDO 3 — Titans vs AIP  |  Titans 60 - AIP 49
   ══════════════════════════════════════════════ */
   const aipStats = emptyStats();
   const aipMins  = emptyMins();
@@ -159,6 +187,17 @@ function importar() {
       rivalScore: 64,
       stats: cjpStats,
       minutesPlayed: cjpMins,
+      fouledOut: { 'Zury Attia': true },
+      players: [...players],
+    },
+    {
+      date: '3/5/2026',
+      gameName: 'Titans vs MET',
+      rivalName: 'MET',
+      titansScore: 40,
+      rivalScore: 46,
+      stats: metStats,
+      minutesPlayed: metMins,
       fouledOut: { 'Zury Attia': true },
       players: [...players],
     },
