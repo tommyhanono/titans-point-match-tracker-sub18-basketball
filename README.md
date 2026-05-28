@@ -2,7 +2,7 @@
 
 **Aplicación de estadísticas en vivo para el equipo Titans — Copa Talento Sub-18**
 
-🔗 **[Abrir la app → https://tommyhanono.github.io/titans-pwa/](https://tommyhanono.github.io/titans-pwa/)**
+🔗 **[Abrir la app → https://tommyhanono.github.io/titans-point-match-tracker-sub18-basketball/](https://tommyhanono.github.io/titans-point-match-tracker-sub18-basketball/)**
 
 ---
 
