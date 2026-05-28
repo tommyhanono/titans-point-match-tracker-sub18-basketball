@@ -4,7 +4,7 @@
 
 🔗 **[Abrir la app → https://tommyhanono.github.io/titans-point-match-tracker-sub18-basketball/](https://tommyhanono.github.io/titans-point-match-tracker-sub18-basketball/)**
 
-📥 **[Importar historial de partidos → https://tommyhanono.github.io/titans-point-match-tracker-sub18-basketball/import-history.html](https://tommyhanono.github.io/titans-point-match-tracker-sub18-basketball/import-history.html)**
+📥 **[Cargar historial de partidos → https://tommyhanono.github.io/titans-point-match-tracker-sub18-basketball/import-history.html](https://tommyhanono.github.io/titans-point-match-tracker-sub18-basketball/import-history.html)**
 
 ---
 
@@ -21,6 +21,7 @@ Titans Tracker es una Progressive Web App (PWA) diseñada para registrar estadí
 - ⏱️ Minutos jugados por jugador (solo cuenta cuando está en cancha y el reloj corre)
 - 📋 Tabla de estadísticas en vivo
 - 📝 Generador de reporte de partido (resumen ejecutivo, estadísticas, jugadores destacados y recomendaciones)
+- 📚 Historial de partidos con promedios de temporada y gráficas de progresión por jugador
 - 💾 Guardado automático del partido en el dispositivo
 - 🔄 Botón de nuevo partido con confirmación
 - ↩️ Deshacer última acción
@@ -31,6 +32,16 @@ Titans Tracker es una Progressive Web App (PWA) diseñada para registrar estadí
 1. Abre el link en **Safari** (iPhone/iPad) o **Chrome/Safari** (Mac)
 2. Toca el botón de compartir → **"Agregar a pantalla de inicio"** (iOS) o **"Instalar app"** (Mac)
 3. Listo — funciona como una app nativa sin necesidad de conexión
+
+## Cómo cargar el historial de partidos anteriores
+
+> Haz esto **una sola vez** la primera vez que abras la app en un dispositivo nuevo.
+
+1. Abre el link de **Cargar historial** que está arriba
+2. Toca **"Importar 4 partidos"**
+3. La app se abre automáticamente y el botón **📚 Historial** ya muestra todos los partidos de la temporada
+
+Los partidos incluidos son: CJP (1/5), MET (3/5), AIP (10/5) y La Salle (20/5).
 
 ## Jugadores
 
