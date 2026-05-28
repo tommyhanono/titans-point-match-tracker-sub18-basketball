@@ -5,7 +5,8 @@
 ═══════════════════════════════════════════════════════════════════════════ */
 const QUARTER_SECS = 10 * 60;
 const QUARTERS     = ['Q1','Q2','Q3','Q4','OT'];
-const STORAGE_KEY  = 'titans_game_v2';   // same key — migración automática
+const STORAGE_KEY  = 'titans_game_v2';
+const HISTORY_KEY  = 'titans_history_v1';
 
 const DEFAULT_PLAYERS = [
   'Aaron Breziner', 'Andre Setton',    'Zury Attia',       'Joseph Gabay',
@@ -736,13 +737,258 @@ function manualLoad() {
 }
 
 function newGame() {
-  if (!confirm('¿Iniciar un nuevo partido?\n\nSe borrarán todas las estadísticas y el marcador actual.\nEsta acción no se puede deshacer.')) return;
-  const opponent = prompt('Nombre del rival:', '___') || '___';
+  if (!confirm('¿Iniciar un nuevo partido?\n\nSe guardarán las estadísticas actuales en el historial.')) return;
+
+  // Guardar partido actual al historial si tiene datos
+  if (totalPts() > 0 || S.players.some(p => S.minutesPlayed[p] > 0)) {
+    const rivalScoreRaw = prompt('¿Cuántos puntos anotó el rival? (Enter para saltar)', '');
+    const rivalScore    = rivalScoreRaw !== null && rivalScoreRaw.trim() !== '' ? parseInt(rivalScoreRaw) : null;
+    const rivalName     = S.gameName.replace(/titans\s*vs\s*/i, '').trim() || '???';
+    saveToHistory(rivalName, rivalScore);
+  }
+
+  const opponent = prompt('Nombre del nuevo rival:', '___') || '___';
   S = newState();
   S.gameName = `Titans vs ${opponent.trim()}`;
   localStorage.removeItem(STORAGE_KEY);
   renderAll();
   toast('🔄 Nuevo partido iniciado');
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   HISTORIAL DE PARTIDOS
+═══════════════════════════════════════════════════════════════════════════ */
+function loadHistory() {
+  try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); }
+  catch(e) { return []; }
+}
+
+function saveToHistory(rivalName, rivalScore) {
+  try {
+    const history = loadHistory();
+    history.push({
+      date:         new Date().toLocaleDateString('es-ES'),
+      gameName:     S.gameName,
+      rivalName,
+      titansScore:  totalPts(),
+      rivalScore,
+      stats:        JSON.parse(JSON.stringify(S.stats)),
+      minutesPlayed:JSON.parse(JSON.stringify(S.minutesPlayed)),
+      fouledOut:    JSON.parse(JSON.stringify(S.fouledOut || {})),
+      players:      [...S.players],
+    });
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    toast('📚 Partido guardado en historial');
+  } catch(e) { console.warn('Error guardando historial:', e); }
+}
+
+function openHistorial() {
+  const history = loadHistory();
+
+  /* ── Season totals per player ── */
+  const allPlayers = [...new Set(history.flatMap(g => g.players))];
+  const seasonStats = {};
+  allPlayers.forEach(p => {
+    seasonStats[p] = { gp:0, pts:0, fg2m:0,fg2a:0, fg3m:0,fg3a:0, ftm:0,fta:0,
+                       reb:0, ast:0, tov:0, stl:0, blk:0, foul:0, mins:0 };
+  });
+  history.forEach(g => {
+    g.players.forEach(p => {
+      const s = g.stats[p]; if (!s) return;
+      const ss = seasonStats[p];
+      const gpts = (s['2PT_MADE']||0)*2 + (s['3PT_MADE']||0)*3 + (s['FT_MADE']||0);
+      if (gpts > 0 || (g.minutesPlayed[p]||0) > 0) ss.gp++;
+      ss.pts  += gpts;
+      ss.fg2m += s['2PT_MADE']||0; ss.fg2a += s['2PT_ATT']||0;
+      ss.fg3m += s['3PT_MADE']||0; ss.fg3a += s['3PT_ATT']||0;
+      ss.ftm  += s['FT_MADE']||0;  ss.fta  += s['FT_ATT']||0;
+      ss.reb  += (s.REB_OFF||0)+(s.REB_DEF||0);
+      ss.ast  += s.AST||0; ss.tov += s.TOV||0;
+      ss.stl  += s.STL||0; ss.blk += s.BLK||0; ss.foul += s.FOUL||0;
+      ss.mins += g.minutesPlayed[p]||0;
+    });
+  });
+
+  const avg = (v, gp) => gp > 0 ? (v/gp).toFixed(1) : '--';
+  const pct  = (m, a) => a > 0 ? Math.round(m/a*100)+'%' : '--';
+
+  /* ── Record ── */
+  let W=0, L=0, D=0;
+  history.forEach(g => {
+    if (g.rivalScore === null || g.rivalScore === undefined) return;
+    if (g.titansScore > g.rivalScore) W++;
+    else if (g.titansScore < g.rivalScore) L++;
+    else D++;
+  });
+
+  /* ── SVG line chart ── */
+  function sparkline(playerName) {
+    const games = history.filter(g => g.players.includes(playerName));
+    if (games.length < 2) return '<em style="color:#888;font-size:0.75rem">Pocos partidos</em>';
+    const vals = games.map(g => {
+      const s = g.stats[playerName] || {};
+      return (s['2PT_MADE']||0)*2 + (s['3PT_MADE']||0)*3 + (s['FT_MADE']||0);
+    });
+    const max = Math.max(...vals, 1);
+    const W2 = 160, H2 = 40, pad = 6;
+    const points = vals.map((v, i) => {
+      const x = pad + (i / (vals.length-1)) * (W2 - pad*2);
+      const y = H2 - pad - (v / max) * (H2 - pad*2);
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    }).join(' ');
+    const dots = vals.map((v, i) => {
+      const x = pad + (i / (vals.length-1)) * (W2 - pad*2);
+      const y = H2 - pad - (v / max) * (H2 - pad*2);
+      return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3" fill="#f1c40f"/>
+              <title>Partido ${i+1}: ${v} pts</title>`;
+    }).join('');
+    return `<svg width="${W2}" height="${H2}" style="overflow:visible">
+      <polyline points="${points}" fill="none" stroke="#c0392b" stroke-width="2" stroke-linejoin="round"/>
+      ${dots}
+    </svg>`;
+  }
+
+  /* ── Games list HTML ── */
+  const gamesHtml = history.length === 0
+    ? '<p style="color:#888;padding:12px">No hay partidos registrados aún.</p>'
+    : [...history].reverse().map((g, ri) => {
+        const i = history.length - 1 - ri;
+        const result = g.rivalScore !== null && g.rivalScore !== undefined
+          ? (g.titansScore > g.rivalScore ? '✅' : g.titansScore < g.rivalScore ? '❌' : '🟡')
+          : '';
+        const scoreStr = g.rivalScore !== null && g.rivalScore !== undefined
+          ? `${g.titansScore} — ${g.rivalScore}` : `${g.titansScore} — ?`;
+        return `<details class="game-item">
+          <summary>
+            <span class="game-result">${result}</span>
+            <span class="game-title">Titans vs ${g.rivalName}</span>
+            <span class="game-score">${scoreStr}</span>
+            <span class="game-date">${g.date}</span>
+          </summary>
+          <div class="game-detail">
+            <table class="h-table">
+              <thead><tr><th>Jugador</th><th>MIN</th><th>PTS</th><th>2PT M/A</th><th>3PT M/A</th><th>TL M/A</th><th>FG%</th><th>REB</th><th>AST</th><th>TOV</th><th>FALT</th></tr></thead>
+              <tbody>${g.players.map(p => {
+                const s = g.stats[p]||{};
+                const gpts = (s['2PT_MADE']||0)*2+(s['3PT_MADE']||0)*3+(s['FT_MADE']||0);
+                const fgm = (s['2PT_MADE']||0)+(s['3PT_MADE']||0);
+                const fga = (s['2PT_ATT']||0)+(s['3PT_ATT']||0);
+                return `<tr>
+                  <td>${p}</td>
+                  <td>${fmtMin(g.minutesPlayed[p]||0)}</td>
+                  <td><b>${gpts}</b></td>
+                  <td>${s['2PT_MADE']||0}/${s['2PT_ATT']||0}</td>
+                  <td>${s['3PT_MADE']||0}/${s['3PT_ATT']||0}</td>
+                  <td>${s['FT_MADE']||0}/${s['FT_ATT']||0}</td>
+                  <td>${fga>0?Math.round(fgm/fga*100)+'%':'--'}</td>
+                  <td>${(s.REB_OFF||0)+(s.REB_DEF||0)}</td>
+                  <td>${s.AST||0}</td><td>${s.TOV||0}</td><td>${s.FOUL||0}</td>
+                </tr>`;
+              }).join('')}</tbody>
+            </table>
+          </div>
+        </details>`;
+      }).join('');
+
+  /* ── Season table HTML ── */
+  const seasonHtml = allPlayers
+    .filter(p => seasonStats[p].gp > 0)
+    .sort((a,b) => seasonStats[b].pts - seasonStats[a].pts)
+    .map(p => {
+      const ss = seasonStats[p];
+      return `<tr>
+        <td><b>${p}</b></td>
+        <td>${ss.gp}</td>
+        <td>${avg(ss.pts, ss.gp)}</td>
+        <td>${pct(ss.fg2m+ss.fg3m, ss.fg2a+ss.fg3a)}</td>
+        <td>${pct(ss.fg3m, ss.fg3a)}</td>
+        <td>${pct(ss.ftm, ss.fta)}</td>
+        <td>${avg(ss.reb, ss.gp)}</td>
+        <td>${avg(ss.ast, ss.gp)}</td>
+        <td>${avg(ss.tov, ss.gp)}</td>
+        <td>${avg(ss.foul, ss.gp)}</td>
+        <td style="padding:4px 8px">${sparkline(p)}</td>
+      </tr>`;
+    }).join('');
+
+  const html = `<!DOCTYPE html>
+<html lang="es"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Historial — Titans</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Helvetica Neue',Arial,sans-serif;background:#f5f5f5;color:#1a1a2e;font-size:14px}
+  .page{max-width:900px;margin:0 auto;background:#fff;padding:32px}
+  h1{font-size:1.6rem;font-weight:900;margin-bottom:4px}
+  .subtitle{color:#888;font-size:0.85rem;margin-bottom:24px}
+  .record{display:flex;gap:16px;margin-bottom:28px}
+  .rec-box{text-align:center;padding:12px 20px;border-radius:10px;min-width:70px}
+  .rec-box .num{font-size:2rem;font-weight:900;line-height:1}
+  .rec-box .lbl{font-size:0.7rem;font-weight:700;letter-spacing:0.1em;margin-top:2px}
+  .win{background:#1a5e35;color:#2ecc71}.loss{background:#5c0a0a;color:#e74c3c}.draw{background:#1a3a6e;color:#7ec8e3}
+  section{margin-bottom:32px}
+  section h2{font-size:0.72rem;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;
+             color:#fff;background:#1a1a2e;padding:6px 12px;border-radius:4px;margin-bottom:12px}
+  .game-item{border:1px solid #eee;border-radius:8px;margin-bottom:8px;overflow:hidden}
+  .game-item summary{display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;
+                     list-style:none;background:#fafafa;font-weight:600}
+  .game-item summary::-webkit-details-marker{display:none}
+  .game-item[open] summary{background:#f0f0f0}
+  .game-result{font-size:1rem;flex-shrink:0}
+  .game-title{flex:1;font-size:0.95rem}
+  .game-score{font-weight:900;font-size:1rem;color:#1a1a2e}
+  .game-date{font-size:0.75rem;color:#888;flex-shrink:0}
+  .game-detail{padding:12px;overflow-x:auto}
+  .h-table{border-collapse:collapse;min-width:100%;font-size:0.78rem;white-space:nowrap}
+  .h-table th{background:#1a1a2e;color:#f1c40f;padding:5px 8px;text-align:center;font-weight:700}
+  .h-table th:first-child{text-align:left}
+  .h-table td{padding:4px 8px;text-align:center;border-bottom:1px solid #eee}
+  .h-table td:first-child{text-align:left}
+  .h-table tr:nth-child(even) td{background:#f9f9f9}
+  .season-table{border-collapse:collapse;min-width:100%;font-size:0.78rem;white-space:nowrap}
+  .season-table th{background:#1a1a2e;color:#f1c40f;padding:6px 8px;text-align:center;font-weight:700;position:sticky;top:0}
+  .season-table th:first-child{text-align:left}
+  .season-table td{padding:5px 8px;text-align:center;border-bottom:1px solid #eee}
+  .season-table td:first-child{text-align:left;font-weight:600}
+  .season-table tr:nth-child(even) td{background:#f9f9f9}
+  .tbl-wrap{overflow-x:auto}
+  .print-btn{display:block;margin:0 auto 28px;padding:10px 28px;background:#1a1a2e;color:#fff;
+             border:none;border-radius:8px;font-size:0.95rem;font-weight:700;cursor:pointer}
+  @media print{.print-btn{display:none}}
+</style>
+</head><body><div class="page">
+  <button class="print-btn" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+  <h1>📚 Historial — Titans</h1>
+  <p class="subtitle">Copa Talento Sub-18 · ${history.length} partido${history.length!==1?'s':''} registrado${history.length!==1?'s':''}</p>
+
+  <div class="record">
+    <div class="rec-box win"><div class="num">${W}</div><div class="lbl">VICTORIAS</div></div>
+    <div class="rec-box loss"><div class="num">${L}</div><div class="lbl">DERROTAS</div></div>
+    <div class="rec-box draw"><div class="num">${D}</div><div class="lbl">EMPATES</div></div>
+  </div>
+
+  <section>
+    <h2>Partidos Jugados</h2>
+    ${gamesHtml}
+  </section>
+
+  <section>
+    <h2>Promedios de Temporada</h2>
+    <div class="tbl-wrap">
+      <table class="season-table">
+        <thead><tr>
+          <th>Jugador</th><th>PJ</th><th>PTS/J</th><th>FG%</th><th>3PT%</th><th>FT%</th>
+          <th>REB/J</th><th>AST/J</th><th>TOV/J</th><th>FALT/J</th><th>Progresión PTS</th>
+        </tr></thead>
+        <tbody>${seasonHtml || '<tr><td colspan="11" style="text-align:center;color:#888;padding:12px">Sin datos aún</td></tr>'}</tbody>
+      </table>
+    </div>
+  </section>
+</div></body></html>`;
+
+  const w = window.open('', '_blank');
+  if (w) { w.document.write(html); w.document.close(); }
+  else toast('Permite ventanas emergentes para ver el historial');
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -1089,8 +1335,9 @@ function bindEvents() {
   document.getElementById('btnUndo')    ?.addEventListener('click', undoLast);
   document.getElementById('btnSave')    ?.addEventListener('click', manualSave);
   document.getElementById('btnLoad')    ?.addEventListener('click', manualLoad);
-  document.getElementById('btnReport')  ?.addEventListener('click', generateReport);
-  document.getElementById('btnNewGame') ?.addEventListener('click', newGame);
+  document.getElementById('btnReport')    ?.addEventListener('click', generateReport);
+  document.getElementById('btnNewGame')   ?.addEventListener('click', newGame);
+  document.getElementById('btnHistorial') ?.addEventListener('click', openHistorial);
   document.getElementById('btnAdd')     ?.addEventListener('click', addPlayer);
   document.getElementById('btnRemove')  ?.addEventListener('click', removePlayer);
 
