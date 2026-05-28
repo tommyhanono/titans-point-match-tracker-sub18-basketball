@@ -758,9 +758,89 @@ function newGame() {
 /* ═══════════════════════════════════════════════════════════════════════════
    HISTORIAL DE PARTIDOS
 ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Partidos de la temporada — se usan como semilla si el dispositivo no tiene
+   historial guardado (primer acceso, navegador nuevo, datos borrados).        */
+const SEASON_SEED = (function() {
+  const pl = ['Aaron Breziner','Andre Setton','Zury Attia','Joseph Gabay',
+               'Saul Piciotto','Daniel Abadi','Ilay Mendelson','Alberto Yahni',
+               'Ramon Malca','Ariel Gean','Ariel Ghershfeld','Toby Burstein'];
+  function es() {
+    const s={};
+    pl.forEach(p => s[p]={'2PT_MADE':0,'2PT_ATT':0,'3PT_MADE':0,'3PT_ATT':0,
+      'FT_MADE':0,'FT_ATT':0,'REB_OFF':0,'REB_DEF':0,'AST':0,'TOV':0,'STL':0,'BLK':0,'FOUL':0});
+    return s;
+  }
+  function em() { const m={}; pl.forEach(p=>m[p]=0); return m; }
+
+  // ── Partido 1: Titans vs CJP  56-64  (1/5/2026) ──────────────────────────
+  const cjpS=es(), cjpM=em();
+  Object.assign(cjpS['Aaron Breziner'],  {  '2PT_MADE':2,'2PT_ATT':8,'3PT_MADE':1,'3PT_ATT':3,'FT_MADE':2,'FT_ATT':8,'TOV':2,'FOUL':1});
+  Object.assign(cjpS['Joseph Gabay'],    {  '2PT_MADE':5,'2PT_ATT':9,'3PT_MADE':1,'3PT_ATT':2,'FT_MADE':6,'FT_ATT':7,'TOV':1,'FOUL':2});
+  Object.assign(cjpS['Andre Setton'],    {  '2PT_MADE':3,'2PT_ATT':9,'3PT_MADE':1,'3PT_ATT':3,'FT_MADE':5,'FT_ATT':12,'TOV':5,'FOUL':4});
+  Object.assign(cjpS['Zury Attia'],      {  '2PT_MADE':1,'2PT_ATT':4,'3PT_MADE':1,'3PT_ATT':2,'FT_MADE':5,'FT_ATT':8,'TOV':1,'FOUL':5});
+  Object.assign(cjpS['Saul Piciotto'],   {  '2PT_MADE':2,'2PT_ATT':6,'3PT_MADE':0,'3PT_ATT':1,'FT_MADE':0,'FT_ATT':2,'TOV':3,'FOUL':3});
+  Object.assign(cjpS['Alberto Yahni'],   {  'TOV':2,'FOUL':2});
+  Object.assign(cjpS['Ramon Malca'],     {  'TOV':2,'FOUL':2});
+  Object.assign(cjpS['Ariel Gean'],      {  'FOUL':1});
+  Object.assign(cjpS['Toby Burstein'],   {  'TOV':1,'FOUL':1});
+  cjpM['Aaron Breziner']=2400; cjpM['Joseph Gabay']=1920; cjpM['Andre Setton']=1980;
+  cjpM['Zury Attia']=1620; cjpM['Saul Piciotto']=960; cjpM['Alberto Yahni']=1140;
+  cjpM['Ramon Malca']=240; cjpM['Ariel Gean']=180; cjpM['Toby Burstein']=120;
+
+  // ── Partido 2: Titans vs MET  40-46  (3/5/2026) ──────────────────────────
+  const metS=es(), metM=em();
+  Object.assign(metS['Aaron Breziner'],  {  '2PT_MADE':1,'2PT_ATT':4,'3PT_MADE':0,'3PT_ATT':1,'FT_MADE':1,'FT_ATT':2,'TOV':2,'FOUL':1});
+  Object.assign(metS['Joseph Gabay'],    {  '2PT_MADE':2,'2PT_ATT':5,'3PT_MADE':1,'3PT_ATT':2,'FT_MADE':2,'FT_ATT':2,'TOV':2,'FOUL':3});
+  Object.assign(metS['Andre Setton'],    {  '2PT_MADE':6,'2PT_ATT':12,'3PT_MADE':0,'3PT_ATT':2,'FT_MADE':3,'FT_ATT':5,'TOV':5,'FOUL':2});
+  Object.assign(metS['Saul Piciotto'],   {  '2PT_MADE':0,'2PT_ATT':2,'3PT_MADE':0,'3PT_ATT':1,'FT_MADE':0,'FT_ATT':2,'TOV':0,'FOUL':0});
+  Object.assign(metS['Zury Attia'],      {  '2PT_MADE':2,'2PT_ATT':5,'3PT_MADE':2,'3PT_ATT':4,'FT_MADE':1,'FT_ATT':1,'TOV':3,'FOUL':5});
+  Object.assign(metS['Daniel Abadi'],    {  '2PT_MADE':1,'2PT_ATT':4,'3PT_MADE':0,'3PT_ATT':0,'FT_MADE':0,'FT_ATT':0,'TOV':2,'FOUL':2});
+  Object.assign(metS['Alberto Yahni'],   {  'TOV':1,'FOUL':0});
+  Object.assign(metS['Ariel Gean'],      {  'TOV':3,'FOUL':0});
+  Object.assign(metS['Ilay Mendelson'],  {  'TOV':0,'FOUL':1});
+  Object.assign(metS['Ariel Ghershfeld'],{  'TOV':0,'FOUL':1});
+
+  // ── Partido 3: Titans vs AIP  60-49  (10/5/2026) ─────────────────────────
+  const aipS=es(), aipM=em();
+  Object.assign(aipS['Andre Setton'],    {  '2PT_MADE':9,'2PT_ATT':18,'3PT_MADE':0,'3PT_ATT':0,'FT_MADE':6,'FT_ATT':18,'TOV':0,'FOUL':1});
+  Object.assign(aipS['Ilay Mendelson'],  {  '2PT_MADE':6,'2PT_ATT':12,'3PT_MADE':0,'3PT_ATT':1,'FT_MADE':1,'FT_ATT':2,'TOV':6,'FOUL':2});
+  Object.assign(aipS['Aaron Breziner'], {  '2PT_MADE':4,'2PT_ATT':9,'3PT_MADE':0,'3PT_ATT':4,'FT_MADE':1,'FT_ATT':6,'TOV':5,'FOUL':2});
+  Object.assign(aipS['Saul Piciotto'],  {  '2PT_MADE':3,'2PT_ATT':7,'3PT_MADE':0,'3PT_ATT':0,'FT_MADE':1,'FT_ATT':4,'TOV':2,'FOUL':3});
+  Object.assign(aipS['Daniel Abadi'],   {  '2PT_MADE':1,'2PT_ATT':8,'3PT_MADE':0,'3PT_ATT':0,'FT_MADE':0,'FT_ATT':0,'TOV':5,'FOUL':4});
+  Object.assign(aipS['Alberto Yahni'],  {  '2PT_MADE':1,'2PT_ATT':5,'3PT_MADE':0,'3PT_ATT':0,'FT_MADE':0,'FT_ATT':0,'TOV':1,'FOUL':0});
+  Object.assign(aipS['Ariel Ghershfeld'],{'2PT_MADE':1,'2PT_ATT':1,'3PT_MADE':0,'3PT_ATT':0,'FT_MADE':0,'FT_ATT':0,'TOV':1,'FOUL':1});
+  Object.assign(aipS['Ariel Gean'],     {  '2PT_MADE':0,'2PT_ATT':0,'3PT_MADE':0,'3PT_ATT':0,'FT_MADE':1,'FT_ATT':2,'TOV':0,'FOUL':0});
+  Object.assign(aipS['Ramon Malca'],    {  '2PT_MADE':0,'2PT_ATT':1,'TOV':1});
+  aipM['Andre Setton']=2280; aipM['Ilay Mendelson']=2100; aipM['Aaron Breziner']=1200;
+
+  // ── Partido 4: Titans vs La Salle  65-62  (20/5/2026) ────────────────────
+  const lsS=es(), lsM=em();
+  Object.assign(lsS['Aaron Breziner'],  {  '2PT_MADE':3,'2PT_ATT':12,'3PT_MADE':0,'3PT_ATT':1,'FT_MADE':2,'FT_ATT':3,'TOV':0,'FOUL':4,'REB_OFF':3,'REB_DEF':8,'AST':4});
+  Object.assign(lsS['Andre Setton'],    {  '2PT_MADE':11,'2PT_ATT':17,'3PT_MADE':0,'3PT_ATT':1,'FT_MADE':5,'FT_ATT':12,'TOV':7,'FOUL':4,'REB_OFF':4,'REB_DEF':8,'AST':0});
+  Object.assign(lsS['Joseph Gabay'],    {  '2PT_MADE':5,'2PT_ATT':8,'3PT_MADE':0,'3PT_ATT':1,'FT_MADE':1,'FT_ATT':1,'TOV':4,'FOUL':5,'REB_OFF':2,'REB_DEF':5,'AST':0});
+  Object.assign(lsS['Daniel Abadi'],    {  '2PT_MADE':4,'2PT_ATT':12,'3PT_MADE':0,'3PT_ATT':0,'FT_MADE':1,'FT_ATT':3,'TOV':4,'FOUL':2,'REB_OFF':4,'REB_DEF':8,'AST':1});
+  Object.assign(lsS['Ilay Mendelson'],  {  '2PT_MADE':4,'2PT_ATT':7,'3PT_MADE':0,'3PT_ATT':1,'FT_MADE':2,'FT_ATT':4,'TOV':4,'FOUL':3,'REB_OFF':3,'REB_DEF':7,'AST':0});
+  Object.assign(lsS['Alberto Yahni'],   {  '2PT_MADE':0,'2PT_ATT':2,'TOV':2,'FOUL':0,'REB_OFF':0,'REB_DEF':1,'AST':2});
+  lsM['Aaron Breziner']=2400; lsM['Andre Setton']=2400; lsM['Joseph Gabay']=1018;
+  lsM['Daniel Abadi']=1772; lsM['Ilay Mendelson']=2400; lsM['Alberto Yahni']=2018;
+
+  return [
+    { date:'1/5/2026',  gameName:'Titans vs CJP',      rivalName:'CJP',      titansScore:56, rivalScore:64, stats:cjpS, minutesPlayed:cjpM, fouledOut:{'Zury Attia':true},    players:[...pl] },
+    { date:'3/5/2026',  gameName:'Titans vs MET',      rivalName:'MET',      titansScore:40, rivalScore:46, stats:metS, minutesPlayed:metM, fouledOut:{'Zury Attia':true},    players:[...pl] },
+    { date:'10/5/2026', gameName:'Titans vs AIP',      rivalName:'AIP',      titansScore:60, rivalScore:49, stats:aipS, minutesPlayed:aipM, fouledOut:{},                     players:[...pl] },
+    { date:'20/5/2026', gameName:'Titans vs La Salle', rivalName:'La Salle', titansScore:65, rivalScore:62, stats:lsS,  minutesPlayed:lsM,  fouledOut:{'Joseph Gabay':true},  players:[...pl] },
+  ];
+})();
+
 function loadHistory() {
-  try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); }
-  catch(e) { return []; }
+  try {
+    const raw = localStorage.getItem(HISTORY_KEY);
+    if (raw) return JSON.parse(raw);
+    // Primer acceso: sembrar con datos de la temporada y guardar
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(SEASON_SEED));
+    return SEASON_SEED;
+  } catch(e) { return SEASON_SEED; }
 }
 
 function saveToHistory(rivalName, rivalScore) {
