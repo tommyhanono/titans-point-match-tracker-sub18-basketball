@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Importar Historial — Titans</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #1a1a2e; color: #fff;
+         display: flex; flex-direction: column; align-items: center;
+         justify-content: center; height: 100vh; margin: 0; text-align: center; }
+  h1  { color: #f1c40f; margin-bottom: 8px; }
+  p   { color: #aaa; margin-bottom: 24px; }
+  button { background: #c0392b; color: #fff; border: none; padding: 14px 32px;
+           border-radius: 10px; font-size: 1.1rem; font-weight: 700; cursor: pointer; }
+  button:hover { background: #a93226; }
+  #msg { margin-top: 20px; font-size: 1rem; color: #2ecc71; display: none; }
+</style>
+</head>
+<body>
+<h1>📚 Importar Historial</h1>
+<p>Carga los partidos de la temporada al historial de la app.</p>
+<button onclick="importar()">Importar 4 partidos</button>
+<div id="msg">✅ ¡Historial importado! Redirigiendo a la app...</div>
+
+<script>
+function importar() {
+  const HISTORY_KEY = 'titans_history_v1';
+  const players = [
+    'Aaron Breziner','Andre Setton','Zury Attia','Joseph Gabay',
+    'Saul Piciotto','Daniel Abadi','Ilay Mendelson','Alberto Yahni',
+    'Ramon Malca','Ariel Gean','Ariel Ghershfeld','Toby Burstein'
+  ];
+
+  function emptyStats() {
+    const s = {};
+    players.forEach(p => s[p] = {
+      '2PT_MADE':0,'2PT_ATT':0,'3PT_MADE':0,'3PT_ATT':0,
+      'FT_MADE':0,'FT_ATT':0,'REB_OFF':0,'REB_DEF':0,
+      'AST':0,'TOV':0,'STL':0,'BLK':0,'FOUL':0
+    });
+    return s;
+  }
+  function emptyMins() { const m={}; players.forEach(p=>m[p]=0); return m; }
+
+  /* ══════════════════════════════════════════════
+     PARTIDO 1 — Titans vs CJP  |  Titans 56 - CJP 64
+  ══════════════════════════════════════════════ */
+  const cjpStats = emptyStats();
+  const cjpMins  = emptyMins();
+
+  // Aaron Breziner: 9pts, TL 2/8, 1 falta, 2 TO — PT math: 9-2=7 del campo → 1 triple+2 dobles
+  Object.assign(cjpStats['Aaron Breziner'],    {'2PT_MADE':2,'2PT_ATT':8,'3PT_MADE':1,'3PT_ATT':3,'FT_MADE':2,'FT_ATT':8,'TOV':2,'FOUL':1});
+  cjpMins['Aaron Breziner'] = 2400; // 40 min completos
+
+  // Joseph Gabay: 19pts MVP, TL 6/7, 2 faltas, 1 TO — 19-6=13 del campo → 1 triple+5 dobles
+  Object.assign(cjpStats['Joseph Gabay'],      {'2PT_MADE':5,'2PT_ATT':9,'3PT_MADE':1,'3PT_ATT':2,'FT_MADE':6,'FT_ATT':7,'TOV':1,'FOUL':2});
+  cjpMins['Joseph Gabay'] = 1920; // ~32 min
+
+  // Andre Setton: 14pts, TL 5/12, 4 faltas, 5 TO — 14-5=9 del campo → 1 triple+3 dobles
+  Object.assign(cjpStats['Andre Setton'],      {'2PT_MADE':3,'2PT_ATT':9,'3PT_MADE':1,'3PT_ATT':3,'FT_MADE':5,'FT_ATT':12,'TOV':5,'FOUL':4});
+  cjpMins['Andre Setton'] = 1980; // ~33 min
+
+  // Zury Attia: 10pts, TL 5/8, 5 faltas (FOULED OUT), 1 TO — 10-5=5 del campo → 1 triple+1 doble
+  Object.assign(cjpStats['Zury Attia'],        {'2PT_MADE':1,'2PT_ATT':4,'3PT_MADE':1,'3PT_ATT':2,'FT_MADE':5,'FT_ATT':8,'TOV':1,'FOUL':5});
+  cjpMins['Zury Attia'] = 1620; // ~27 min
+
+  // Saul Piciotto: 4pts, TL 0/2, 3 faltas, 3 TO — 4-0=4 del campo → 2 dobles
+  Object.assign(cjpStats['Saul Piciotto'],     {'2PT_MADE':2,'2PT_ATT':6,'3PT_MADE':0,'3PT_ATT':1,'FT_MADE':0,'FT_ATT':2,'TOV':3,'FOUL':3});
+  cjpMins['Saul Piciotto'] = 960; // ~16 min
+
+  // Alberto Yahni: 0pts, 19 min, 2 faltas, 2 TO
+  Object.assign(cjpStats['Alberto Yahni'],     {'TOV':2,'FOUL':2});
+  cjpMins['Alberto Yahni'] = 1140;
+
+  // Ramon Malca: 0pts, 4 min, 2 faltas, 2 TO
+  Object.assign(cjpStats['Ramon Malca'],       {'TOV':2,'FOUL':2});
+  cjpMins['Ramon Malca'] = 240;
+
+  // Ariel Gean: 0pts, 3 min, 1 falta
+  Object.assign(cjpStats['Ariel Gean'],        {'FOUL':1});
+  cjpMins['Ariel Gean'] = 180;
+
+  // Toby Burstein: 0pts, 2 min, 1 falta, 1 TO
+  Object.assign(cjpStats['Toby Burstein'],     {'TOV':1,'FOUL':1});
+  cjpMins['Toby Burstein'] = 120;
+
+  /* ══════════════════════════════════════════════
+     PARTIDO 2 — Titans vs MET  |  Titans 40 - MET 46
+  ══════════════════════════════════════════════ */
+  const metStats = emptyStats();
+  const metMins  = emptyMins();
+
+  // Aaron Breziner: 3pts (1x2PT, 1/2 FT), 1 falta, 2 TO
+  Object.assign(metStats['Aaron Breziner'],   {'2PT_MADE':1,'2PT_ATT':4,'3PT_MADE':0,'3PT_ATT':1,'FT_MADE':1,'FT_ATT':2,'TOV':2,'FOUL':1});
+  // Joseph Gabay: 9pts (2x2PT, 1x3PT, 2/2 FT), 3 faltas, 2 TO
+  Object.assign(metStats['Joseph Gabay'],     {'2PT_MADE':2,'2PT_ATT':5,'3PT_MADE':1,'3PT_ATT':2,'FT_MADE':2,'FT_ATT':2,'TOV':2,'FOUL':3});
+  // Andre Setton: 15pts (6x2PT, 0x3PT, 3/5 FT), 2 faltas, 5 TO
+  Object.assign(metStats['Andre Setton'],     {'2PT_MADE':6,'2PT_ATT':12,'3PT_MADE':0,'3PT_ATT':2,'FT_MADE':3,'FT_ATT':5,'TOV':5,'FOUL':2});
+  // Saul Piciotto: 0pts, 0/2 FT, 0 faltas
+  Object.assign(metStats['Saul Piciotto'],    {'2PT_MADE':0,'2PT_ATT':2,'3PT_MADE':0,'3PT_ATT':1,'FT_MADE':0,'FT_ATT':2,'TOV':0,'FOUL':0});
+  // Zury Attia: 11pts (2x2PT, 2x3PT, 1/1 FT), 5 faltas FOULED OUT, 3 TO
+  Object.assign(metStats['Zury Attia'],       {'2PT_MADE':2,'2PT_ATT':5,'3PT_MADE':2,'3PT_ATT':4,'FT_MADE':1,'FT_ATT':1,'TOV':3,'FOUL':5});
+  // Daniel Abadi: 2pts (1x2PT), 2 faltas, 2 TO
+  Object.assign(metStats['Daniel Abadi'],     {'2PT_MADE':1,'2PT_ATT':4,'3PT_MADE':0,'3PT_ATT':0,'FT_MADE':0,'FT_ATT':0,'TOV':2,'FOUL':2});
+  // Alberto Yahni: 0pts, 1 TO
+  Object.assign(metStats['Alberto Yahni'],    {'TOV':1,'FOUL':0});
+  // Ariel Gean: 0pts, 3 TO
+  Object.assign(metStats['Ariel Gean'],       {'TOV':3,'FOUL':0});
+  // Ilay Mendelson: 0pts, 1 falta
+  Object.assign(metStats['Ilay Mendelson'],   {'TOV':0,'FOUL':1});
+  // Ariel Ghershfeld: 0pts, 1 falta
+  Object.assign(metStats['Ariel Ghershfeld'], {'TOV':0,'FOUL':1});
+  // Ramon Malca & Toby Burstein: no jugaron
+
+  /* ══════════════════════════════════════════════
+     PARTIDO 3 — Titans vs AIP  |  Titans 60 - AIP 49
+  ══════════════════════════════════════════════ */
+  const aipStats = emptyStats();
+  const aipMins  = emptyMins();
+
+  // Andre Setton: 24pts MVP, 2PT 9/18, 3PT 0/0, TL 6/18, 1 falta, 0 TO
+  Object.assign(aipStats['Andre Setton'],      {'2PT_MADE':9,'2PT_ATT':18,'3PT_MADE':0,'3PT_ATT':0,'FT_MADE':6,'FT_ATT':18,'TOV':0,'FOUL':1});
+  aipMins['Andre Setton'] = 2280;
+
+  // Ilay Mendelson: 13pts, 2PT 6/12, 3PT 0/1, TL 1/2, 2 faltas, 6 TO
+  Object.assign(aipStats['Ilay Mendelson'],    {'2PT_MADE':6,'2PT_ATT':12,'3PT_MADE':0,'3PT_ATT':1,'FT_MADE':1,'FT_ATT':2,'TOV':6,'FOUL':2});
+  aipMins['Ilay Mendelson'] = 2100;
+
+  // Aaron Breziner: 9pts, 2PT 4/9, 3PT 0/4, TL 1/6, 2 faltas, 5 TO
+  Object.assign(aipStats['Aaron Breziner'],    {'2PT_MADE':4,'2PT_ATT':9,'3PT_MADE':0,'3PT_ATT':4,'FT_MADE':1,'FT_ATT':6,'TOV':5,'FOUL':2});
+  aipMins['Aaron Breziner'] = 1200;
+
+  // Saul Piciotto: 7pts, 2PT 3/7, 3PT 0/0, TL 1/4, 3 faltas, 2 TO
+  Object.assign(aipStats['Saul Piciotto'],     {'2PT_MADE':3,'2PT_ATT':7,'3PT_MADE':0,'3PT_ATT':0,'FT_MADE':1,'FT_ATT':4,'TOV':2,'FOUL':3});
+
+  // Daniel Abadi: 2pts, 2PT 1/8, 3PT 0/0, TL 0/0, 4 faltas, 5 TO
+  Object.assign(aipStats['Daniel Abadi'],      {'2PT_MADE':1,'2PT_ATT':8,'3PT_MADE':0,'3PT_ATT':0,'FT_MADE':0,'FT_ATT':0,'TOV':5,'FOUL':4});
+
+  // Alberto Yahni: 2pts, 2PT 1/5, 3PT 0/0, TL 0/0, 0 faltas, 1 TO
+  Object.assign(aipStats['Alberto Yahni'],     {'2PT_MADE':1,'2PT_ATT':5,'3PT_MADE':0,'3PT_ATT':0,'FT_MADE':0,'FT_ATT':0,'TOV':1,'FOUL':0});
+
+  // Ariel Ghershfeld: 2pts, 2PT 1/1, 3PT 0/0, TL 0/0, 1 falta, 1 TO
+  Object.assign(aipStats['Ariel Ghershfeld'],  {'2PT_MADE':1,'2PT_ATT':1,'3PT_MADE':0,'3PT_ATT':0,'FT_MADE':0,'FT_ATT':0,'TOV':1,'FOUL':1});
+
+  // Ariel Gean: 1pt, 2PT 0/0, 3PT 0/0, TL 1/2, 0 faltas, 0 TO
+  Object.assign(aipStats['Ariel Gean'],        {'2PT_MADE':0,'2PT_ATT':0,'3PT_MADE':0,'3PT_ATT':0,'FT_MADE':1,'FT_ATT':2,'TOV':0,'FOUL':0});
+
+  // Ramon Malca: 0pts, 2PT 0/1, 1 TO
+  Object.assign(aipStats['Ramon Malca'],       {'2PT_MADE':0,'2PT_ATT':1,'TOV':1});
+
+  /* ══════════════════════════════════════════════
+     PARTIDO 3 — Titans vs La Salle  |  Titans 65 - La Salle 62
+     Fecha: 20/5/2026
+  ══════════════════════════════════════════════ */
+  const lsStats = emptyStats();
+  const lsMins  = emptyMins();
+
+  // Aaron Breziner: 8pts, 2PT 3/12, 3PT 0/1, TL 2/3, 4 faltas, 0 TO, REB 11, AST 4
+  Object.assign(lsStats['Aaron Breziner'],    {'2PT_MADE':3,'2PT_ATT':12,'3PT_MADE':0,'3PT_ATT':1,'FT_MADE':2,'FT_ATT':3,'TOV':0,'FOUL':4,'REB_OFF':3,'REB_DEF':8,'AST':4});
+  lsMins['Aaron Breziner'] = 2400;
+
+  // Andre Setton: 27pts MVP, 2PT 11/17, 3PT 0/1, TL 5/12, 4 faltas, 7 TO, REB 12, AST 0
+  Object.assign(lsStats['Andre Setton'],      {'2PT_MADE':11,'2PT_ATT':17,'3PT_MADE':0,'3PT_ATT':1,'FT_MADE':5,'FT_ATT':12,'TOV':7,'FOUL':4,'REB_OFF':4,'REB_DEF':8,'AST':0});
+  lsMins['Andre Setton'] = 2400;
+
+  // Joseph Gabay: 11pts, 2PT 5/8, 3PT 0/1, TL 1/1, 5 faltas FOULED OUT, 4 TO, REB 7, AST 0
+  Object.assign(lsStats['Joseph Gabay'],      {'2PT_MADE':5,'2PT_ATT':8,'3PT_MADE':0,'3PT_ATT':1,'FT_MADE':1,'FT_ATT':1,'TOV':4,'FOUL':5,'REB_OFF':2,'REB_DEF':5,'AST':0});
+  lsMins['Joseph Gabay'] = 1018;
+
+  // Daniel Abadi: 9pts, 2PT 4/12, 3PT 0/0, TL 1/3, 2 faltas, 4 TO, REB 12, AST 1
+  Object.assign(lsStats['Daniel Abadi'],      {'2PT_MADE':4,'2PT_ATT':12,'3PT_MADE':0,'3PT_ATT':0,'FT_MADE':1,'FT_ATT':3,'TOV':4,'FOUL':2,'REB_OFF':4,'REB_DEF':8,'AST':1});
+  lsMins['Daniel Abadi'] = 1772;
+
+  // Ilay Mendelson: 10pts, 2PT 4/7, 3PT 0/1, TL 2/4, 3 faltas, 4 TO, REB 10, AST 0
+  Object.assign(lsStats['Ilay Mendelson'],    {'2PT_MADE':4,'2PT_ATT':7,'3PT_MADE':0,'3PT_ATT':1,'FT_MADE':2,'FT_ATT':4,'TOV':4,'FOUL':3,'REB_OFF':3,'REB_DEF':7,'AST':0});
+  lsMins['Ilay Mendelson'] = 2400;
+
+  // Alberto Yahni: 0pts, 2PT 0/2, 0 faltas, 2 TO, REB 1, AST 2
+  Object.assign(lsStats['Alberto Yahni'],     {'2PT_MADE':0,'2PT_ATT':2,'TOV':2,'FOUL':0,'REB_OFF':0,'REB_DEF':1,'AST':2});
+  lsMins['Alberto Yahni'] = 2018;
+
+  const history = [
+    {
+      date: '1/5/2026',
+      gameName: 'Titans vs CJP',
+      rivalName: 'CJP',
+      titansScore: 56,
+      rivalScore: 64,
+      stats: cjpStats,
+      minutesPlayed: cjpMins,
+      fouledOut: { 'Zury Attia': true },
+      players: [...players],
+    },
+    {
+      date: '3/5/2026',
+      gameName: 'Titans vs MET',
+      rivalName: 'MET',
+      titansScore: 40,
+      rivalScore: 46,
+      stats: metStats,
+      minutesPlayed: metMins,
+      fouledOut: { 'Zury Attia': true },
+      players: [...players],
+    },
+    {
+      date: '10/5/2026',
+      gameName: 'Titans vs AIP',
+      rivalName: 'AIP',
+      titansScore: 60,
+      rivalScore: 49,
+      stats: aipStats,
+      minutesPlayed: aipMins,
+      fouledOut: {},
+      players: [...players],
+    },
+    {
+      date: '20/5/2026',
+      gameName: 'Titans vs La Salle',
+      rivalName: 'La Salle',
+      titansScore: 65,
+      rivalScore: 62,
+      stats: lsStats,
+      minutesPlayed: lsMins,
+      fouledOut: { 'Joseph Gabay': true },
+      players: [...players],
+    },
+  ];
+
+  localStorage.setItem('titans_history_v1', JSON.stringify(history));
+  document.getElementById('msg').style.display = 'block';
+  setTimeout(() => { window.location.href = './index.html'; }, 1500);
+}
+</script>
+</body>
+</html>
